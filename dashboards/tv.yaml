@@ -56,6 +56,15 @@ sections:
           perform_action: script.bina_hdmi
           confirmation:
             text: Podrum Bina i Podrum Veliki TV na Podrum HDMI izvor?
+      - type: button
+        name: Default
+        icon: mdi:restore
+        show_state: false
+        tap_action:
+          action: perform-action
+          perform_action: script.default_tv
+          confirmation:
+            text: Vratiti TV-ove na zadani raspored?
   - type: grid
     cards:
       - type: heading
