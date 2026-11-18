@@ -1,0 +1,74 @@
+# Lovelace view for choosing which source each TV shows.
+# Entity ids assume the bridge names set in UniFi. Adjust them if yours differ
+# (Settings > Devices & services > UniFi Pro AV).
+title: TV
+path: tv
+icon: mdi:television-classic
+type: sections
+max_columns: 3
+sections:
+  - type: grid
+    cards:
+      - type: heading
+        heading: Sve na jedan izvor
+        icon: mdi:television-play
+      - type: button
+        name: Ormar HT
+        icon: mdi:home-theater
+        tap_action:
+          action: perform-action
+          perform_action: unifi_proav.route
+          data:
+            source: Ormar (input) HT
+          confirmation:
+            text: Prebaciti SVE TV-ove na Ormar HT?
+      - type: button
+        name: Ormar rpi
+        icon: mdi:raspberry-pi
+        tap_action:
+          action: perform-action
+          perform_action: unifi_proav.route
+          data:
+            source: Ormar (input) rpi
+          confirmation:
+            text: Prebaciti SVE TV-ove na Ormar rpi?
+      - type: button
+        name: Podrum bina
+        icon: mdi:projector
+        tap_action:
+          action: perform-action
+          perform_action: unifi_proav.route
+          data:
+            source: Podrum (input) bina
+          confirmation:
+            text: Prebaciti SVE TV-ove na Podrum bina?
+  - type: grid
+    cards:
+      - type: heading
+        heading: Svaki TV posebno
+        icon: mdi:television
+      - type: tile
+        entity: select.kat_ulaz_source
+        name: Kat - ulaz
+        features:
+          - type: select-options
+      - type: tile
+        entity: select.prizemlje_klavir_source
+        name: Prizemlje - klavir
+        features:
+          - type: select-options
+      - type: tile
+        entity: select.prizemlje_pec_source
+        name: Prizemlje - peć
+        features:
+          - type: select-options
+      - type: tile
+        entity: select.podrum_veliki_tv_source
+        name: Podrum Veliki TV
+        features:
+          - type: select-options
+      - type: tile
+        entity: select.podrum_bina_source
+        name: Podrum Bina
+        features:
+          - type: select-options

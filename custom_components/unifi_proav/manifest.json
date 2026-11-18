@@ -1,0 +1,12 @@
+{
+  "domain": "unifi_proav",
+  "name": "UniFi Pro AV",
+  "codeowners": ["@renatomaric"],
+  "config_flow": true,
+  "documentation": "https://github.com/renatomaric/ha-unifi-proav",
+  "integration_type": "service",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/renatomaric/ha-unifi-proav/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

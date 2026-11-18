@@ -1,0 +1,11 @@
+route:
+  target:
+    entity:
+      integration: unifi_proav
+      domain: select
+  fields:
+    source:
+      required: true
+      example: "Ormar (input) HT"
+      selector:
+        text:

@@ -1,0 +1,49 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "UniFi Pro AV",
+        "description": "Use a local UniFi OS account (not a ui.com account) that can manage the UniFi Network application.",
+        "data": {
+          "host": "Host",
+          "username": "Username",
+          "password": "Password",
+          "site": "Site"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Sign in again",
+        "description": "The controller refused the saved password. Enter the current one.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot reach the controller, or it has no Pro AV matrix.",
+      "invalid_auth": "Wrong username or password.",
+      "account_locked": "The account is locked after too many failed logins. Unlock it in UniFi OS, then try again."
+    },
+    "abort": {
+      "already_configured": "This controller and site are already configured.",
+      "reauth_successful": "Signed in again."
+    }
+  },
+  "entity": {
+    "select": {
+      "source": { "name": "Source" }
+    }
+  },
+  "services": {
+    "route": {
+      "name": "Route",
+      "description": "Send several TVs to one source in a single pass. Without a target, every TV is routed.",
+      "fields": {
+        "source": {
+          "name": "Source",
+          "description": "The source name as shown in the select options, or Off."
+        }
+      }
+    }
+  }
+}
