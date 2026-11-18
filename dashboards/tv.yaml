@@ -14,7 +14,7 @@ sections:
         icon: mdi:television-play
       - type: button
         name: Ormar HT
-        icon: mdi:home-theater
+        icon: mdi:set-top-box
         tap_action:
           action: perform-action
           perform_action: unifi_proav.route
