@@ -1,5 +1,5 @@
 # Lovelace view for choosing which source each TV shows.
-# Entity ids assume the bridge names set in UniFi. Adjust them if yours differ
+# Entity ids include the area prefix HA adds, for example select.kat_kat_ulaz_source. Adjust them if yours differ
 # (Settings > Devices & services > UniFi Pro AV).
 title: TV
 path: tv
@@ -48,27 +48,27 @@ sections:
         heading: Svaki TV posebno
         icon: mdi:television
       - type: tile
-        entity: select.kat_ulaz_source
+        entity: select.kat_kat_ulaz_source
         name: Kat - ulaz
         features:
           - type: select-options
       - type: tile
-        entity: select.prizemlje_klavir_source
+        entity: select.prizemlje_prizemlje_klavir_source
         name: Prizemlje - klavir
         features:
           - type: select-options
       - type: tile
-        entity: select.prizemlje_pec_source
+        entity: select.prizemlje_prizemlje_pec_source
         name: Prizemlje - peć
         features:
           - type: select-options
       - type: tile
-        entity: select.podrum_veliki_tv_source
+        entity: select.podrum_podrum_veliki_tv_source
         name: Podrum Veliki TV
         features:
           - type: select-options
       - type: tile
-        entity: select.podrum_bina_source
+        entity: select.podrum_podrum_bina_source
         name: Podrum Bina
         features:
           - type: select-options

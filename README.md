@@ -13,8 +13,8 @@ It uses the internal video matrix endpoint of the UniFi Network application (`/p
 action: unifi_proav.route
 target:
   entity_id:
-    - select.kat_ulaz_source
-    - select.prizemlje_klavir_source
+    - select.kat_kat_ulaz_source
+    - select.prizemlje_prizemlje_klavir_source
 data:
   source: Ormar (input) HT
 ```
