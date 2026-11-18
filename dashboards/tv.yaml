@@ -45,6 +45,20 @@ sections:
   - type: grid
     cards:
       - type: heading
+        heading: Preseti
+        icon: mdi:playlist-play
+      - type: button
+        name: Bina HDMI
+        icon: mdi:projector-screen
+        show_state: false
+        tap_action:
+          action: perform-action
+          perform_action: script.bina_hdmi
+          confirmation:
+            text: Podrum Bina i Podrum Veliki TV na Podrum bina izvor?
+  - type: grid
+    cards:
+      - type: heading
         heading: Svaki TV posebno
         icon: mdi:television
       - type: tile
