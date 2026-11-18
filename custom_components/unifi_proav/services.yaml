@@ -6,6 +6,6 @@ route:
   fields:
     source:
       required: true
-      example: "Ormar (input) HT"
+      example: "HOME.tv"
       selector:
         text:

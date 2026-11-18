@@ -13,35 +13,35 @@ sections:
         heading: Sve na jedan izvor
         icon: mdi:television-play
       - type: button
-        name: Ormar HT
+        name: HOME.tv
         icon: mdi:set-top-box
         tap_action:
           action: perform-action
           perform_action: unifi_proav.route
           data:
-            source: Ormar (input) HT
+            source: HOME.tv
           confirmation:
-            text: Prebaciti SVE TV-ove na Ormar HT?
+            text: Prebaciti SVE TV-ove na HOME.tv?
       - type: button
-        name: Ormar rpi
+        name: Reklame
         icon: mdi:raspberry-pi
         tap_action:
           action: perform-action
           perform_action: unifi_proav.route
           data:
-            source: Ormar (input) rpi
+            source: Reklame
           confirmation:
-            text: Prebaciti SVE TV-ove na Ormar rpi?
+            text: Prebaciti SVE TV-ove na Reklame?
       - type: button
-        name: Podrum bina
+        name: Podrum HDMI
         icon: mdi:projector
         tap_action:
           action: perform-action
           perform_action: unifi_proav.route
           data:
-            source: Podrum (input) bina
+            source: Podrum HDMI
           confirmation:
-            text: Prebaciti SVE TV-ove na Podrum bina?
+            text: Prebaciti SVE TV-ove na Podrum HDMI?
   - type: grid
     cards:
       - type: heading
@@ -55,7 +55,7 @@ sections:
           action: perform-action
           perform_action: script.bina_hdmi
           confirmation:
-            text: Podrum Bina i Podrum Veliki TV na Podrum bina izvor?
+            text: Podrum Bina i Podrum Veliki TV na Podrum HDMI izvor?
   - type: grid
     cards:
       - type: heading

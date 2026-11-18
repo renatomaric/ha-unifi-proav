@@ -16,7 +16,7 @@ target:
     - select.kat_kat_ulaz_source
     - select.prizemlje_prizemlje_klavir_source
 data:
-  source: Ormar (input) HT
+  source: HOME.tv
 ```
 
 Source and TV names come from the device names in the UniFi Network app. The entities attach to the bridge devices the UniFi Network integration already created.
