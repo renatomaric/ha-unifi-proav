@@ -11,7 +11,6 @@ import json
 from typing import Any
 
 import aiohttp
-from yarl import URL
 
 from .planner import Op
 
@@ -43,6 +42,9 @@ class ProAVClient:
         self._password = password
         self._site = site
         self._csrf: str | None = None
+        # Kept here instead of in the session's cookie jar: aiohttp's default jar drops cookies
+        # from IP hosts such as 192.168.0.1, which made every request after login fail.
+        self._token: str | None = None
         self._logged_in = False
 
     @property
@@ -62,21 +64,24 @@ class ProAVClient:
                     raise ProAVAuthError(f"Login refused ({resp.status})", code)
                 if resp.status >= 400:
                     raise ProAVError(f"Login failed ({resp.status})")
+                cookie = resp.cookies.get("TOKEN")
+                self._token = cookie.value if cookie else None
+                if self._token is None:
+                    raise ProAVError("Login succeeded but no session token was returned")
                 self._csrf = (
                     resp.headers.get("X-CSRF-Token")
                     or resp.headers.get("X-Updated-CSRF-Token")
-                    or self._csrf_from_cookie()
+                    or self._csrf_from_token()
                 )
         except aiohttp.ClientError as err:
             raise ProAVError(f"Cannot reach the controller: {err}") from err
         self._logged_in = True
 
-    def _csrf_from_cookie(self) -> str | None:
-        cookie = self._session.cookie_jar.filter_cookies(URL(self._base)).get("TOKEN")
-        if cookie is None:
+    def _csrf_from_token(self) -> str | None:
+        if self._token is None:
             return None
         try:
-            payload = cookie.value.split(".")[1]
+            payload = self._token.split(".")[1]
             payload += "=" * (-len(payload) % 4)
             return json.loads(base64.urlsafe_b64decode(payload)).get("csrfToken")
         except (IndexError, ValueError):
@@ -86,7 +91,7 @@ class ProAVClient:
         if not self._logged_in:
             await self.login()
         for attempt in (1, 2):
-            headers = {}
+            headers = {"Cookie": f"TOKEN={self._token}"}
             if method != "GET" and self._csrf:
                 headers["X-CSRF-Token"] = self._csrf
             try:

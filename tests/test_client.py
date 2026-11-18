@@ -104,7 +104,8 @@ async def controller():
     fake = FakeController()
     server = TestServer(fake.app())
     await server.start_server()
-    session = aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True))
+    # The default cookie jar refuses cookies from IP hosts, like the session Home Assistant hands out.
+    session = aiohttp.ClientSession()
     fake.client = ProAVClient(session, str(server.make_url("")), "ha", "secret")
     yield fake
     await session.close()
@@ -118,6 +119,15 @@ async def test_reads_the_matrix_after_logging_in(controller):
 
     assert matrix["hosts"] == ["aa:00:00:00:00:01"]
     assert controller.login_attempts == 1
+
+
+async def test_works_when_the_session_refuses_cookies_from_ip_hosts(controller):
+    # Regression: the login cookie was dropped, so the first read after login was refused.
+    await controller.client.get_matrix()
+    await controller.client.apply([Op("DELETE", "g1", None)])
+
+    assert controller.login_attempts == 1
+    assert controller.calls[-1] == ("DELETE", f"{VIDEO}/group/g1", None, CSRF)
 
 
 async def test_writes_carry_the_csrf_token_from_login(controller):
