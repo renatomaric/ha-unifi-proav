@@ -79,15 +79,17 @@ def test_moving_the_last_tv_out_of_a_group_deletes_it():
     assert [(o.method, o.group_id) for o in ops] == [("DELETE", "g1"), ("PUT", "g2")]
 
 
-def test_moving_everything_re_points_the_emptied_group_in_one_write():
+def test_moving_everything_deletes_the_old_group_and_creates_a_new_one():
+    # The controller assigns channels itself and refuses to re-point a group to another host
+    # ("AV Group channel already exists"), so an emptied group is never reused.
     ops = plan_route(all_on_ht(), [TV1, TV2, TV3, TV4, TV5], RPI, NAMES)
 
-    assert [(o.method, o.group_id) for o in ops] == [("PUT", "g1")]
-    body = ops[0].body
+    assert [(o.method, o.group_id) for o in ops] == [("DELETE", "g1"), ("POST", None)]
+    body = ops[1].body
     assert body["host"]["mac"] == RPI
+    assert body["name"] == "Ormar rpi"
+    assert "channel" not in body and "id" not in body
     assert [c["mac"] for c in body["clients"]] == [TV1, TV2, TV3, TV4, TV5]
-    assert body["channel"] == 2
-    assert body["name"] == "HOME.TV"
 
 
 def test_a_tv_keeps_its_own_settings_when_it_moves():

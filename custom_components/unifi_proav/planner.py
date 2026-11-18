@@ -69,9 +69,9 @@ def plan_route(
 ) -> list[Op]:
     """Plan the writes that make ``client_macs`` show ``target_host_mac`` (None = show nothing).
 
-    Receivers keep their own settings when they move. Groups that end up empty are deleted,
-    except that an emptied group is re-pointed at the target host when the target has no
-    group yet, which is one write and keeps the channel.
+    Receivers keep their own settings when they move. Groups that end up empty are deleted and
+    a missing target group is created. An emptied group is never re-pointed at another host:
+    the controller assigns channels itself and rejects that ("AV Group channel already exists").
     """
     moving = {m.lower() for m in client_macs}
     target = target_host_mac.lower() if target_host_mac else None
@@ -117,16 +117,6 @@ def plan_route(
     emptied = [gid for gid in emptied if gid != target_group_id]
 
     ops: list[Op] = []
-    reuse_id: str | None = None
-
-    if target is not None and target_group_id is None and emptied:
-        reuse_id = emptied[0]
-        group = work[reuse_id]
-        group["host"]["mac"] = target
-        group["clients"] = ordered_carried
-        if group["name"] == _host_name(original[reuse_id], names) or group["name"] == "":
-            group["name"] = names.get(target, group["name"])
-        emptied = emptied[1:]
 
     for gid in emptied:
         ops.append(Op("DELETE", gid, None))
@@ -134,9 +124,7 @@ def plan_route(
         if gid != target_group_id:
             ops.append(Op("PUT", gid, work[gid]))
 
-    if reuse_id is not None:
-        ops.append(Op("PUT", reuse_id, work[reuse_id]))
-    elif target is not None and target_group_id is not None:
+    if target is not None and target_group_id is not None:
         group = work[target_group_id]
         present = {c["mac"].lower() for c in group["clients"]}
         group["clients"] += [c for c in ordered_carried if c["mac"].lower() not in present]
@@ -150,7 +138,3 @@ def plan_route(
 
 def _by_mac(clients: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return sorted(clients, key=lambda c: c["mac"].lower())
-
-
-def _host_name(group: Group, names: dict[str, str]) -> str:
-    return names.get(group["host"]["mac"].lower(), "")

@@ -178,7 +178,7 @@ async def test_off_removes_the_tv_from_its_group(hass: HomeAssistant):
     assert hass.states.get("select.podrum_bina_tv_source").state == "Ormar HT"
 
 
-async def test_route_service_without_a_target_moves_every_tv_in_one_write(
+async def test_route_service_without_a_target_moves_every_tv(
     hass: HomeAssistant, fake_client
 ):
     await setup_entry(hass)
@@ -187,7 +187,7 @@ async def test_route_service_without_a_target_moves_every_tv_in_one_write(
     await hass.async_block_till_done()
 
     assert set(select_states(hass).values()) == {"Podrum bina"}
-    assert [(o.method, o.group_id) for o in fake_client.applied] == [("PUT", "g1")]
+    assert [(o.method, o.group_id) for o in fake_client.applied] == [("DELETE", "g1"), ("POST", None)]
 
 
 async def test_route_service_with_targets_moves_only_those_tvs(hass: HomeAssistant):

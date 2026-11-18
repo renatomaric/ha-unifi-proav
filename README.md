@@ -21,7 +21,7 @@ data:
 
 Source and TV names come from the device names in the UniFi Network app. The entities attach to the bridge devices the UniFi Network integration already created.
 
-A TV that is moved keeps its own receiver settings. A group that becomes empty is deleted, or re-pointed at the new source when that source has no group yet (one write, same channel).
+A TV that is moved keeps its own receiver settings. A group that becomes empty is deleted and a missing group for the new source is created. The controller assigns channels itself, so groups are never re-pointed to another source.
 
 ## Install
 
