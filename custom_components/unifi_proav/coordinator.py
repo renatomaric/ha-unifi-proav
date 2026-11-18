@@ -14,7 +14,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .client import ProAVAuthError, ProAVClient, ProAVError
+from .client import ProAVAuthError, ProAVClient, ProAVError, parse_hdmi_inputs, parse_names
 from .const import CONF_SITE, DEFAULT_SITE, DOMAIN, OPTION_OFF, SCAN_INTERVAL_SECONDS
 from .planner import plan_route, source_of
 
@@ -27,6 +27,17 @@ class ProAVState:
     hosts: list[str] = field(default_factory=list)
     clients: list[str] = field(default_factory=list)
     names: dict[str, str] = field(default_factory=dict)
+    hdmi_inputs: dict[str, bool] = field(default_factory=dict)
+
+    @classmethod
+    def from_api(cls, matrix: dict, devices: list[dict]) -> "ProAVState":
+        return cls(
+            groups=matrix.get("groups", []),
+            hosts=[m.lower() for m in matrix.get("hosts", [])],
+            clients=[m.lower() for m in matrix.get("clients", [])],
+            names=parse_names(devices),
+            hdmi_inputs=parse_hdmi_inputs(devices),
+        )
 
     def label(self, mac: str) -> str:
         return self.names.get(mac.lower(), mac)
@@ -80,31 +91,21 @@ class ProAVCoordinator(DataUpdateCoordinator[ProAVState]):
     async def _async_update_data(self) -> ProAVState:
         try:
             matrix = await self.client.get_matrix()
-            names = await self.client.get_names()
+            devices = await self.client.get_devices()
         except ProAVAuthError as err:
             # Stops polling, so a wrong password cannot lock the account by retrying.
             raise ConfigEntryAuthFailed(str(err)) from err
         except ProAVError as err:
             raise UpdateFailed(str(err)) from err
-        return ProAVState(
-            groups=matrix.get("groups", []),
-            hosts=[m.lower() for m in matrix.get("hosts", [])],
-            clients=[m.lower() for m in matrix.get("clients", [])],
-            names=names,
-        )
+        return ProAVState.from_api(matrix, devices)
 
     async def async_route(self, client_macs: list[str], source_label: str) -> None:
         """Make the given receivers show one source, or nothing for ``Off``."""
         async with self._write_lock:
             try:
                 # Plan from fresh state, not the last poll, so a change made elsewhere is not undone.
-                matrix = await self.client.get_matrix()
-                names = await self.client.get_names()
-                state = ProAVState(
-                    groups=matrix.get("groups", []),
-                    hosts=[m.lower() for m in matrix.get("hosts", [])],
-                    clients=[m.lower() for m in matrix.get("clients", [])],
-                    names=names,
+                state = ProAVState.from_api(
+                    await self.client.get_matrix(), await self.client.get_devices()
                 )
                 if source_label == OPTION_OFF:
                     target = None

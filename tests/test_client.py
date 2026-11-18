@@ -192,6 +192,23 @@ async def test_names_map_lowercase_macs_and_fall_back_to_the_mac(controller):
     assert names == {"aa:00:00:00:00:01": "Ormar HT", "aa:00:00:00:00:02": "aa:00:00:00:00:02"}
 
 
+def test_hdmi_inputs_are_read_from_the_in_port_only():
+    devices = [
+        {"mac": "AA:00:00:00:00:01", "hdmi_ports": [
+            {"type": "in", "connected": True}, {"type": "out", "connected": False}]},
+        {"mac": "aa:00:00:00:00:02", "hdmi_ports": [
+            {"type": "in", "connected": False}, {"type": "out", "connected": True}]},
+        {"mac": "aa:00:00:00:00:03", "hdmi_ports": [{"type": "in"}]},
+        {"mac": "aa:00:00:00:00:04"},
+    ]
+
+    assert client_module.parse_hdmi_inputs(devices) == {
+        "aa:00:00:00:00:01": True,
+        "aa:00:00:00:00:02": False,
+        "aa:00:00:00:00:03": False,
+    }
+
+
 async def test_an_unreachable_controller_raises_a_client_error():
     session = aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True))
     client = ProAVClient(session, "http://127.0.0.1:1", "ha", "secret")

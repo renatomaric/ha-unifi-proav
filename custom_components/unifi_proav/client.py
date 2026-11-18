@@ -116,12 +116,16 @@ class ProAVClient:
     async def get_matrix(self) -> dict[str, Any]:
         return await self._request("GET", f"{self._video}/matrix")
 
-    async def get_names(self) -> dict[str, str]:
-        """MAC to device name, as set in the UniFi Network app."""
+    async def get_devices(self) -> list[dict[str, Any]]:
+        """Raw device list from the Network application."""
         data = await self._request(
             "GET", f"{self._base}/proxy/network/api/s/{self._site}/stat/device"
         )
-        return {d["mac"].lower(): d.get("name") or d["mac"] for d in data.get("data", [])}
+        return data.get("data", [])
+
+    async def get_names(self) -> dict[str, str]:
+        """MAC to device name, as set in the UniFi Network app."""
+        return parse_names(await self.get_devices())
 
     async def apply(self, ops: list[Op]) -> None:
         for op in ops:
@@ -133,6 +137,20 @@ class ProAVClient:
                 await self._request("DELETE", f"{self._video}/group/{op.group_id}")
             else:
                 raise ProAVError(f"Unknown operation {op.method}")
+
+
+def parse_names(devices: list[dict[str, Any]]) -> dict[str, str]:
+    return {d["mac"].lower(): d.get("name") or d["mac"] for d in devices}
+
+
+def parse_hdmi_inputs(devices: list[dict[str, Any]]) -> dict[str, bool]:
+    """MAC to whether a source is plugged into the bridge's HDMI input, for bridges that have one."""
+    result: dict[str, bool] = {}
+    for device in devices:
+        inputs = [p for p in device.get("hdmi_ports", []) if p.get("type") == "in"]
+        if inputs:
+            result[device["mac"].lower()] = any(p.get("connected") for p in inputs)
+    return result
 
 
 async def _error_code(resp: aiohttp.ClientResponse) -> str | None:

@@ -73,6 +73,7 @@ class FakeClient:
     instances: list["FakeClient"] = []
     matrix = initial_matrix()
     login_error: Exception | None = None
+    hdmi_connected: dict = {HT: True}
     applied: list = []
 
     def __init__(self, session, host, username, password, site="default"):
@@ -83,8 +84,18 @@ class FakeClient:
             raise FakeClient.login_error
         return copy.deepcopy(FakeClient.matrix)
 
-    async def get_names(self):
-        return dict(NAMES)
+    async def get_devices(self):
+        return [
+            {
+                "mac": mac,
+                "name": name,
+                "hdmi_ports": [
+                    {"type": "in", "connected": FakeClient.hdmi_connected.get(mac, False)},
+                    {"type": "out", "connected": False},
+                ],
+            }
+            for mac, name in NAMES.items()
+        ]
 
     async def apply(self, ops):
         FakeClient.applied.extend(ops)
@@ -103,6 +114,7 @@ def fake_client():
     FakeClient.instances = []
     FakeClient.matrix = initial_matrix()
     FakeClient.login_error = None
+    FakeClient.hdmi_connected = {HT: True}
     FakeClient.applied = []
     with (
         patch("custom_components.unifi_proav.coordinator.ProAVClient", FakeClient),
@@ -242,3 +254,35 @@ async def test_config_flow_reports_login_problems(hass: HomeAssistant, error, ke
 
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"base": key}
+
+
+def hdmi_states(hass: HomeAssistant) -> dict[str, str]:
+    return {
+        s.attributes["friendly_name"]: s.state for s in hass.states.async_all("binary_sensor")
+    }
+
+
+async def test_each_source_gets_an_hdmi_input_sensor(hass: HomeAssistant):
+    await setup_entry(hass)
+
+    assert hdmi_states(hass) == {
+        "Ormar HT HDMI input": "on",
+        "Ormar rpi HDMI input": "off",
+        "Podrum bina HDMI input": "off",
+    }
+
+
+async def test_plugging_in_hdmi_turns_the_sensor_on_at_the_next_poll(hass: HomeAssistant):
+    entry = await setup_entry(hass)
+
+    FakeClient.hdmi_connected[BINA] = True
+    await entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+
+    assert hdmi_states(hass)["Podrum bina HDMI input"] == "on"
+
+
+async def test_receivers_get_no_hdmi_input_sensor(hass: HomeAssistant):
+    await setup_entry(hass)
+
+    assert not any("Kat - ulaz" in name for name in hdmi_states(hass))

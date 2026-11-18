@@ -14,7 +14,7 @@ from homeassistant.helpers.typing import ConfigType
 from .const import ATTR_SOURCE, DOMAIN, SERVICE_ROUTE
 from .coordinator import ProAVConfigEntry, ProAVCoordinator
 
-PLATFORMS = [Platform.SELECT]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.SELECT]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 ROUTE_SCHEMA = vol.Schema({vol.Required(ATTR_SOURCE): cv.string}, extra=vol.ALLOW_EXTRA)

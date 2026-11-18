@@ -34,6 +34,11 @@
       "source": {
         "name": "Source"
       }
+    },
+    "binary_sensor": {
+      "hdmi_input": {
+        "name": "HDMI input"
+      }
     }
   },
   "services": {
