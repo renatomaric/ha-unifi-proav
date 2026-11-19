@@ -71,8 +71,13 @@ sections:
         heading: Svaki TV posebno
         icon: mdi:television
       - type: tile
-        entity: select.kat_kat_ulaz_source
+        entity: select.kat_ulaz_source
         name: Kat - ulaz
+        features:
+          - type: select-options
+      - type: tile
+        entity: select.kat_kat_ulaz_source
+        name: Kat - DJ
         features:
           - type: select-options
       - type: tile
